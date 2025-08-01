@@ -1,0 +1,4 @@
+rootProject.name = 'easybot_bukkit'
+include ':easybot_bridge'
+include ':easybot_velocity'
+
