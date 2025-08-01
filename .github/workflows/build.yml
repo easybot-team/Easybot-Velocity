@@ -21,12 +21,12 @@ jobs:
         java-version: 17
 
     - name: move gradle
-      uses: mv gradlew ./easybot_velocity
+      uses: mv gradlew easybot_velocity/
 
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
       working-directory: easybot_velocity
-      
+
     - name: Build with Gradle
       run: ./gradlew build
       working-directory: easybot_velocity
