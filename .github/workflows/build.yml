@@ -20,8 +20,11 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
-    - name: Move gradlew to easybot_velocity
-      run: mv gradlew easybot_velocity/
+    - name: Move Gradle files to easybot_velocity
+      run: |
+        mv gradlew easybot_velocity/
+        mkdir -p easybot_velocity/gradle/wrapper
+        cp -r gradle/wrapper/* easybot_velocity/gradle/wrapper/
 
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
