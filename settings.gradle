@@ -1,4 +1,4 @@
-rootProject.name = 'easybot_bukkit'
+rootProject.name = 'easybot_velocity'
 include ':easybot_bridge'
 include ':easybot_velocity'
 
