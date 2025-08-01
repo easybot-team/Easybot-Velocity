@@ -1,3 +1,8 @@
 .idea
 .gradle
 build
+*.class
+easybot_velocity/bin/default/velocity-plugin.json
+easybot_velocity/bin/main/velocity-plugin.json
+easybot_velocity/bin/main/velocity-plugin.json
+easybot_velocity/bin/main/config.toml
