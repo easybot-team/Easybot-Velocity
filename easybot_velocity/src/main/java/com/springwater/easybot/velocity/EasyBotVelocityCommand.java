@@ -18,7 +18,7 @@ public class EasyBotVelocityCommand implements SimpleCommand {
     @Override
     public void execute(Invocation invocation) {
         if (invocation.arguments().length == 0) {
-            invocation.source().sendMessage(Component.text("EasyBot Velocity 插件 v1.0.0").color(NamedTextColor.GREEN));
+            invocation.source().sendMessage(Component.text("EasyBot Velocity 插件 v1.1.0").color(NamedTextColor.GREEN));
             invocation.source().sendMessage(Component.text("使用 /easybot help 查看帮助").color(NamedTextColor.GRAY));
             return;
         }
@@ -73,7 +73,7 @@ public class EasyBotVelocityCommand implements SimpleCommand {
     
     private void showInfo(Invocation invocation) {
         invocation.source().sendMessage(Component.text("=== EasyBot Velocity 信息 ===").color(NamedTextColor.GOLD));
-        invocation.source().sendMessage(Component.text("插件版本: 1.0.0").color(NamedTextColor.GRAY));
+        invocation.source().sendMessage(Component.text("插件版本: 1.1.0").color(NamedTextColor.GRAY));
         invocation.source().sendMessage(Component.text("服务器名称: " + plugin.getConfigManager().getServerName()).color(NamedTextColor.GRAY));
         invocation.source().sendMessage(Component.text("服务URL: " + plugin.getConfigManager().getServiceUrl()).color(NamedTextColor.GRAY));
         invocation.source().sendMessage(Component.text("聊天同步: " + (plugin.getConfigManager().isSyncChat() ? "启用" : "禁用")).color(NamedTextColor.GRAY));
@@ -84,7 +84,7 @@ public class EasyBotVelocityCommand implements SimpleCommand {
         invocation.source().sendMessage(Component.text("连接状态: " + (connected ? "已连接" : "未连接"))
                 .color(connected ? NamedTextColor.GREEN : NamedTextColor.RED));
         
-            boolean updateCheckerRunning = false; // 暂时禁用更新检查器状态
+        boolean updateCheckerRunning = false; // 暂时禁用更新检查器状态
         invocation.source().sendMessage(Component.text("更新检查器: " + (updateCheckerRunning ? "运行中" : "已停止"))
                 .color(updateCheckerRunning ? NamedTextColor.GREEN : NamedTextColor.RED));
     }

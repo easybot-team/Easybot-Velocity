@@ -18,9 +18,9 @@ import java.util.Objects;
 @Plugin(
         id = "easybot",
         name = "EasyBot",
-        version = "1.0.0",
+        version = "1.1.0",
         description = "EasyBot for Velocity",
-        authors = {"Springwater"}
+        authors = {"LBY123165", "springwater"}
 )
 public class EasyBotVelocity {
     
@@ -43,6 +43,17 @@ public class EasyBotVelocity {
     
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        // 显示免费声明
+        logger.info("========================================");
+        logger.info("重要提醒");
+        logger.info("========================================");
+        logger.info("本插件为免费插件，主程序为免费闭源应用");
+        logger.info("所有模组及插件版本均在Github开源");
+        logger.info("如果你是通过任何付费渠道获取的本插件或主程序及token");
+        logger.info("请立即联系作者！");
+        logger.info("Github: https://github.com/Easybot-team/EasyBot-Velocity");
+        logger.info("========================================");
+        
         // 加载配置
         configManager = new ConfigManager(dataDirectory);
         configManager.loadConfig();
@@ -55,7 +66,7 @@ public class EasyBotVelocity {
         instance = this;
         
         // 设置客户端配置
-        ClientProfile.setPluginVersion("1.0.0");
+        ClientProfile.setPluginVersion("1.1.0");
         ClientProfile.setServerDescription("Velocity");
         ClientProfile.setDebugMode(configManager.isDebugMode());
         ClientProfile.setCommandSupported(true);
@@ -97,8 +108,8 @@ public class EasyBotVelocity {
         updateChecker.stop();
         configManager.loadConfig();
         
-        ClientProfile.setPluginVersion("1.0.0");
-        ClientProfile.setServerDescription("Velocity代理服务器");
+        ClientProfile.setPluginVersion("1.1.0");
+        ClientProfile.setServerDescription("Velocity");
         ClientProfile.setDebugMode(configManager.isDebugMode());
         
         bridgeClient.setToken(configManager.getToken());

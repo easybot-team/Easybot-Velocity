@@ -34,7 +34,8 @@ public class PlayerEvents {
             // EasyBot主程序会根据自己的强制绑定设置返回相应结果
             com.springwater.easybot.bridge.packet.PlayerLoginResultPacket loginResult = plugin.getBridgeClient().login(
                 player.getUsername(),
-                player.getUniqueId().toString()
+                player.getUniqueId().toString(),
+                player.getRemoteAddress().getAddress().getHostAddress()
             );
             
             plugin.getLogger().info("玩家 " + player.getUsername() + " 登录结果: " + 
@@ -83,6 +84,8 @@ public class PlayerEvents {
     public void onPlayerJoin(PostLoginEvent event) {
         Player player = event.getPlayer();
         
+        plugin.getLogger().info("玩家 " + player.getUsername() + " 已成功加入服务器，确保玩家信息已上报...");
+        
         // 创建玩家信息
         PlayerInfoWithRaw playerInfo = new PlayerInfoWithRaw();
         playerInfo.setName(player.getUsername());
@@ -90,12 +93,15 @@ public class PlayerEvents {
         playerInfo.setIp(player.getRemoteAddress().getAddress().getHostAddress());
         playerInfo.setNameRaw(player.getUsername()); // 设置原始名称
         
-        // 报告玩家加入
+        // 再次确保玩家信息已上报到主程序（login方法中已经调用过一次）
+        // 这里再次调用是为了确保主程序的在线玩家列表是最新的
         plugin.getBridgeClient().reportPlayer(
             player.getUsername(),
             player.getUniqueId().toString(),
             player.getRemoteAddress().getAddress().getHostAddress()
         );
+        
+        plugin.getLogger().info("玩家 " + player.getUsername() + " 在线状态已确认上报到主程序");
         
         // 如果启用了加入/离开消息同步
         if (plugin.getConfigManager().isSyncJoinLeave()) {
