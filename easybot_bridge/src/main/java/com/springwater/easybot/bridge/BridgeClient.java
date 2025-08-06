@@ -32,7 +32,6 @@ import static com.springwater.easybot.bridge.message.Segment.getSegmentClass;
 @WebSocket
 public class BridgeClient {
     private static final Logger logger = Logger.getLogger("EasyBot");
-    @Getter
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(OpCode.class, new OpCodeAdapter())
             .create();
@@ -44,18 +43,12 @@ public class BridgeClient {
     private final ScheduledExecutorService timeoutScheduler = Executors.newScheduledThreadPool(1);
     private final long timeoutSeconds = 5; // Timeout duration
     private Session session;
-    @Setter
-    @Getter
     private IdentifySuccessPacket identifySuccessPacket;
-    @Setter
-    @Getter
     private String token;
     private String uri;
     private boolean isConnected = false; // 标志是否已经连接
     private ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
-    @Getter
     private boolean ready;
-    @Getter
     private int heartbeatInterval = 120;
 
     public BridgeClient(String uri, BridgeBehavior behavior) {
@@ -115,7 +108,7 @@ public class BridgeClient {
             if (session != null && session.isOpen()) {
                 send(gson.toJson(new HeartbeatPacket()));
             }
-        }, 0, getHeartbeatInterval(), TimeUnit.SECONDS);
+        }, 0, heartbeatInterval, TimeUnit.SECONDS);
     }
 
     @OnWebSocketMessage
@@ -123,7 +116,7 @@ public class BridgeClient {
         if (ClientProfile.isDebugMode()) {
             logger.info("收到消息: " + message);
         }
-        Gson gson = getGson();
+        Gson gson = this.gson;
         Packet packet = gson.fromJson(message, Packet.class);
         switch (packet.getOpCode()) {
             case Hello:
@@ -136,7 +129,7 @@ public class BridgeClient {
                 logger.info("主程序版本: " + helloPacket.getVersion());
                 logger.info("连接信息: " + helloPacket.getSessionId() + " (心跳:" + helloPacket.getInterval() + "s)");
                 logger.info(">>>服务器信息<<<");
-                logger.info("令牌: " + getToken());
+                logger.info("令牌: " + token);
                 logger.info("服务器: " + ClientProfile.getServerDescription());
                 logger.info("插件版本: " + ClientProfile.getPluginVersion());
                 logger.info("支持命令: " + ClientProfile.isCommandSupported());
@@ -149,7 +142,7 @@ public class BridgeClient {
                 break;
             case IdentifySuccess:
                 IdentifySuccessPacket identifySuccessPacket = gson.fromJson(message, IdentifySuccessPacket.class);
-                setIdentifySuccessPacket(identifySuccessPacket);
+                this.identifySuccessPacket = identifySuccessPacket;
                 logger.info("身份验证成功! 服务器名: " + identifySuccessPacket.getServerName());
                 logger.info("已连接到主程序!");
                 startUpdateSyncSettings();
@@ -172,7 +165,7 @@ public class BridgeClient {
     }
 
     private void handlePacket(String message) {
-        Gson gson = getGson();
+        Gson gson = BridgeClient.gson;
         PacketWithCallBackId packet = gson.fromJson(message, PacketWithCallBackId.class);
         JsonObject callBack = new JsonObject();
         callBack.addProperty("op", OpCode.CallBack.getValue());
@@ -262,18 +255,23 @@ public class BridgeClient {
     }
 
     private void sendIdentifyPacket() {
-        Gson gson = getGson();
-        IdentifyPacket packet = new IdentifyPacket(getToken());
+        Gson gson = this.gson;
+        IdentifyPacket packet = new IdentifyPacket(token);
         packet.setPluginVersion(ClientProfile.getPluginVersion());
         packet.setServerDescription(ClientProfile.getServerDescription());
         send(gson.toJson(packet));
     }
 
-    public PlayerLoginResultPacket login(String playerName, String playerUuid) throws ExecutionException, InterruptedException {
+    public PlayerLoginResultPacket login(String playerName, String playerUuid, String playerIp) throws ExecutionException, InterruptedException {
+        // 首先发送REPORT_PLAYER确保主程序知道玩家在线
+        reportPlayer(playerName, playerUuid, playerIp);
+        
+        // 然后发送PLAYER_JOIN进行登录验证
         OnPlayerJoinPacket packet = new OnPlayerJoinPacket();
         PlayerInfo playerInfo = new PlayerInfo();
         playerInfo.setPlayerName(playerName);
         playerInfo.setPlayerUuid(playerUuid);
+        playerInfo.setIp(playerIp); // 设置IP地址信息
         packet.setPlayerInfo(playerInfo);
         return sendAndWaitForCallbackAsync(packet, PlayerLoginResultPacket.class).get();
     }
@@ -284,15 +282,15 @@ public class BridgeClient {
         packet.setPlayerUuid(playerUuid);
         packet.setPlayerIp(playerIp);
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
     }
 
     public void serverState(String players) {
         ServerStatePacket packet = new ServerStatePacket();
-        packet.setToken(getToken());
+        packet.setToken(token);
         packet.setPlayers(players);
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
     }
 
     public void dataRecord(RecordTypeEnum type, String data, String name) {
@@ -300,9 +298,9 @@ public class BridgeClient {
         packet.setType(type);
         packet.setData(data);
         packet.setName(name);
-        packet.setToken(getToken());
+        packet.setToken(token);
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
     }
 
     public StartBindResultPacket startBind(String playerName) throws ExecutionException, InterruptedException {
@@ -350,7 +348,7 @@ public class BridgeClient {
         packet.setMessage(message);
         packet.setUseCommand(useCommand);
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
     }
 
     public void syncDeathMessage(PlayerInfoWithRaw playerInfo, String killMessage, String killer) {
@@ -359,7 +357,7 @@ public class BridgeClient {
         packet.setRaw(killMessage);
         packet.setKiller(killer);
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
     }
 
     public void syncEnterExit(PlayerInfoWithRaw playerInfo, boolean isEnter) {
@@ -367,7 +365,7 @@ public class BridgeClient {
         packet.setPlayer(playerInfo);
         packet.setEnter(isEnter);
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
     }
 
     @OnWebSocketClose
@@ -453,7 +451,15 @@ public class BridgeClient {
     public void startUpdateSyncSettings() {
         NeedSyncSettingsPacket packet = new NeedSyncSettingsPacket();
         packet.setCallBackId("");
-        send(getGson().toJson(packet));
+        send(gson.toJson(packet));
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public boolean isReady() {
+        return ready && session != null && session.isOpen();
     }
 
     public void close() {
