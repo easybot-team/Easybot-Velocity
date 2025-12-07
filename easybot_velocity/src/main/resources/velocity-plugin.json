@@ -1,9 +1,0 @@
-{
-  "id": "easybot",
-  "name": "EasyBot",
-  "version": "1.1.0",
-  "description": "EasyBot for Velocity - 连接Minecraft服务器与QQ群",
-  "authors": ["Springwater", "LBY123165"],
-  "dependencies": [],
-  "main": "com.springwater.easybot.velocity.EasyBotVelocity"
-}
