@@ -36,7 +36,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: EasyBot-Velocity
-        path: build/libs/*-all.jar
+        path: build/libs/*.jar
         retention-days: 7
 
   release:
