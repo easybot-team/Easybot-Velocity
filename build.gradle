@@ -1,111 +1,88 @@
 plugins {
     id 'java'
-    id 'io.github.goooler.shadow' version '8.1.7'
+    id 'eclipse'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.8'
+    id("xyz.jpenilla.run-velocity") version "2.3.1"
+
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-group = 'com.springwater.easybot'
-version = '1.0-SNAPSHOT'
-
-// 配置所有项目
-allprojects {
-    apply plugin: 'java'
-    
-    repositories {
-        mavenCentral()
-        maven { url 'https://repo.papermc.io/repository/maven-public/' }
-    }
-    
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
-}
+group = 'org.lby123165'
+version = '1.2.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
     maven {
-        name = "spigotmc-repo"
-        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
     }
     maven {
-        name = "sonatype"
-        url = "https://oss.sonatype.org/content/groups/public/"
-    }
-    maven {
-        name = "placeholder-api"
-        url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
-    }
-    maven {
-        name = "jitpack"
-        url = "https://jitpack.io"
-    }
-    maven {
-        name = "opencollab-snapshot-repo"
-        url = "https://repo.opencollab.dev/maven-snapshots"
-    }
-    maven {
-        name = "opencollab-release-repo"
-        url = "https://repo.opencollab.dev/maven-releases"
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/easybot-team/easybot-bridge")
+        credentials {            
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user")
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
+        }
     }
 }
-
-tasks.shadowJar {
-    mergeServiceFiles()
-    archiveClassifier = ""
-    archiveFileName = "EasyBot-${version}.jar"
-    relocate("org.reflections", "com.springwater.easybot.libs.reflections")
-    relocate("bot.inker.acj", "com.springwater.easybot.libs.acj")
-    relocate("org.javassist:javassist", "com.springwater.easybot.libs.javassist")
-    relocate("org.eclipse.jetty", "com.springwater.easybot.libs.jetty")
-    //relocate("net.kyori", "com.springwater.easybot.libs.kyori")
-}
-
-tasks.build.dependsOn(tasks.shadowJar)
 
 dependencies {
-    compileOnly "org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT"
-    implementation(project(":easybot_bridge"))
-    implementation 'org.javassist:javassist:3.28.0-GA'
-    implementation 'bot.inker.acj:runtime:1.5'
-    implementation 'org.reflections:reflections:0.10.2'
-    compileOnly(fileTree("libs"))
-    compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("net.kyori:adventure-api:4.17.0")
-    compileOnly("net.kyori:adventure-text-serializer-legacy:4.17.0")
-    compileOnly("org.geysermc.api:base-api:1.0.1")
-    compileOnly("org.geysermc.floodgate:api:2.1.1-SNAPSHOT")
+    compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
-    implementation("net.kyori:adventure-text-serializer-plain:4.17.0")
-    implementation("org.glavo:rcon-java:2.0.2")
+    implementation('com.springwater.easybot:easybot-bridge:1.4-SNAPSHOT') {
+        exclude group: 'com.google.code.gson', module: 'gson'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.projectlombok', module: 'lombok'
+    }
+
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 }
 
+tasks {
+    runVelocity {
+        velocityVersion("3.4.0-SNAPSHOT")
+    }
 
-tasks.build.dependsOn(tasks.shadowJar)
+    shadowJar {
+        relocate 'org.java_websocket', 'org.lby123165.libs.websocket'
 
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+
+        archiveClassifier.set('')
+    }
+
+    build {
+        dependsOn shadowJar
+    }
+}
 
 def targetJavaVersion = 17
 java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release.set(targetJavaVersion)
-    }
+    options.release.set(targetJavaVersion)
 }
 
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
-        expand props
-    }
+def templateSource = file('src/main/templates')
+def templateDest = layout.buildDirectory.dir('generated/sources/templates')
+def generateTemplates = tasks.register('generateTemplates', Copy) { task ->
+    def props = [
+            'version': project.version
+    ]
+    task.inputs.properties props
+
+    task.from templateSource
+    task.into templateDest
+    task.expand props
 }
+
+sourceSets.main.java.srcDir(generateTemplates.map { it.outputs })
+
+project.idea.project.settings.taskTriggers.afterSync generateTemplates
+project.eclipse.synchronizationTasks(generateTemplates)

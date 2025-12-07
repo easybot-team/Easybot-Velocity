@@ -1,10 +1,12 @@
-name: Build Jar
+name: Build and Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
   pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,28 +16,46 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up JDK 21
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
+        java-version: '17'
         distribution: 'temurin'
-        java-version: 17
+        cache: gradle
 
-    - name: Move Gradle files to easybot_velocity
-      run: |
-        mv gradlew easybot_velocity/
-        mkdir -p easybot_velocity/gradle/wrapper
-        cp -r gradle/wrapper/* easybot_velocity/gradle/wrapper/
-
-    - name: Change wrapper permissions
-      run: chmod +x ./gradlew
-      working-directory: easybot_velocity
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew build
-      working-directory: easybot_velocity
+      env:
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./gradlew shadowJar --no-daemon
 
-    - name: Upload JAR artifact
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: easybot-bukkit-jar
-        path: easybot_velocity/build/libs/*.jar
+        name: EasyBot-Velocity
+        path: build/libs/*-all.jar
+        retention-days: 7
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/') # 只有 tag 触发时才执行发布
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: EasyBot-Velocity
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "*.jar"
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
