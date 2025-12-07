@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'org.lby123165'
-version = '1.2.0-SNAPSHOT'
+version = '1.2.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ repositories {
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/easybot-team/easybot-bridge")
-        credentials {            
+        credentials {
             username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user")
             password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
         }
