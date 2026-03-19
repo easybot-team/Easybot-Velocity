@@ -90,6 +90,24 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
     }
 
     @Override
+    public boolean moduleIsInstalled(String moduleName) {
+        return false;
+    }
+
+    @Override
+    public boolean moduleIsEnabled(String moduleName) {
+        return false;
+    }
+
+    @Override
+    public boolean isAuthenticated(String playerName) {
+        if (server.getConfiguration().isOnlineMode()) {
+            return true;
+        }
+        return server.getPlayer(playerName).isPresent();
+    }
+
+    @Override
     public List<PlayerInfo> getPlayerList() {
         List<PlayerInfo> list = new ArrayList<>();
         for (Player p : server.getAllPlayers()) {
