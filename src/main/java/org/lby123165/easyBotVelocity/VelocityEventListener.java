@@ -7,21 +7,24 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class VelocityEventListener {
+    private final ProxyServer server;
     private final BridgeClient client;
     private final Configuration config;
+    // 保持使用 '&' 格式
     private final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacyAmpersand();
 
     private final Set<String> kickList = Collections.synchronizedSet(new HashSet<>());
 
-    public VelocityEventListener(BridgeClient client, Configuration config) {
+    public VelocityEventListener(ProxyServer server, BridgeClient client, Configuration config) {
+        this.server = server;
         this.client = client;
         this.config = config;
     }
@@ -48,16 +51,18 @@ public class VelocityEventListener {
                     String rawKickReason = loginResult.getKickMessage();
                     if (rawKickReason == null) rawKickReason = "&c验证失败";
 
-                    // 将后端发来的 '§' 替换为 '&'，以适配 serializer
+                    // [关键修复] 将后端发来的 '§' 替换为 '&'，以适配我们的 serializer
                     String kickReason = rawKickReason.replace('§', '&');
 
                     kickList.add(name);
 
+                    // [关键修复] 这里必须用 '&c' 而不是 '§c'
                     player.sendMessage(serializer.deserialize("&c[EasyBot] 验证未通过: " + kickReason));
                     player.sendMessage(serializer.deserialize("&c[EasyBot] 您将在 3 秒后被移出服务器..."));
 
                     try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
 
+                    // [关键修复] 同样替换 '§' 为 '&'
                     player.disconnect(serializer.deserialize("&c" + kickReason));
 
                     return;
@@ -71,12 +76,18 @@ public class VelocityEventListener {
 
                 client.syncEnterExit(info, true);
 
+                try {
+                    client.serverState(String.valueOf(server.getPlayerCount()));
+                } catch (Exception ignored) {
+                }
+
             } catch (Exception e) {
                 if (!config.ignoreError) e.printStackTrace();
             }
         }).start();
     }
 
+    // onDisconnect 和 onChat 保持不变...
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         if (config.skipOptions.skipQuit) return;
@@ -94,6 +105,11 @@ public class VelocityEventListener {
         info.setNameRaw(name);
 
         client.syncEnterExit(info, false);
+
+        try {
+            client.serverState(String.valueOf(server.getPlayerCount()));
+        } catch (Exception ignored) {
+        }
     }
 
     @Subscribe

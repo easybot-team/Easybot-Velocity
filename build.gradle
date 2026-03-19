@@ -30,7 +30,7 @@ dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
-    implementation('com.springwater.easybot:easybot-bridge:1.4-SNAPSHOT') {
+    implementation('com.springwater.easybot:easybot-bridge:1.7') {
         exclude group: 'com.google.code.gson', module: 'gson'
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'org.projectlombok', module: 'lombok'

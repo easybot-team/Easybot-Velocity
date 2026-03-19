@@ -43,6 +43,11 @@ public class EasyBotVelocity {
         ClientProfile.setPluginVersion(BuildConstants.VERSION);
         ClientProfile.setServerDescription("Velocity");
         ClientProfile.setDebugMode(config.debug);
+        ClientProfile.setCommandSupported(true);
+        ClientProfile.setPapiSupported(false);
+        ClientProfile.setOnlineMode(server.getConfiguration().isOnlineMode());
+        ClientProfile.setHasGeyser(server.getPluginManager().getPlugin("geyser").isPresent());
+        ClientProfile.setHasFloodgate(server.getPluginManager().getPlugin("floodgate").isPresent());
 
         logger.info("连接目标: " + config.ws);
 
@@ -52,7 +57,7 @@ public class EasyBotVelocity {
         bridgeClient.setToken(config.token);
 
         // 4. 注册监听器 (将 config 传进去，用于判断 skipOptions)
-        server.getEventManager().register(this, new VelocityEventListener(bridgeClient, config));
+        server.getEventManager().register(this, new VelocityEventListener(server, bridgeClient, config));
         EasyBotCommand cmd = new EasyBotCommand(bridgeClient, config, dataDirectory);
 
         server.getCommandManager().register(
