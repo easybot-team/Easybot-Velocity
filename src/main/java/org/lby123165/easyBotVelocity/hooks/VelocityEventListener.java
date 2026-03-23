@@ -118,17 +118,12 @@ public class VelocityEventListener {
         if (config.skipOptions.skipChat) return;
         Player player = event.getPlayer();
         String msg = event.getMessage();
-        boolean isCmd = msg.startsWith("/");
-
         String serverName = player.getCurrentServer()
                 .map(s -> s.getServerInfo().getName())
                 .orElse("?");
-
         PlayerInfoWithRaw info = new PlayerInfoWithRaw();
         info.setName(player.getUsername());
         info.setNameRaw(player.getUsername() + " [" + serverName + "]");
-
-
-        client.syncMessage(info, msg, isCmd);
+        client.syncMessage(info, msg, false); // useCommand = false 表示当前用户是从chat触发的消息同步
     }
 }
