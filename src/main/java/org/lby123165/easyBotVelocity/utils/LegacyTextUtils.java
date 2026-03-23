@@ -7,4 +7,8 @@ public class LegacyTextUtils {
     public static Component toComponent(String text) {
         return LegacyComponentSerializer.legacySection().deserialize(text);
     }
+    
+    public static String toString(Component component) {
+        return LegacyComponentSerializer.legacySection().serialize(component);
+    }
 }

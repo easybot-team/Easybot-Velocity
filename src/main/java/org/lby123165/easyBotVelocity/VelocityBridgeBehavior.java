@@ -7,11 +7,14 @@ import com.springwater.easybot.bridge.model.ServerInfo;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
+import org.lby123165.easyBotVelocity.utils.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class VelocityBridgeBehavior implements BridgeBehavior {
     private final ProxyServer server;
@@ -25,14 +28,17 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
 
     @Override
     public String runCommand(String playerName, String command, boolean enablePapi) {
-        try {
-            logger.info("收到命令执行请求: {}", command);
-            server.getCommandManager().executeAsync(server.getConsoleCommandSource(), command);
-            return "命令已通过控制台执行: " + command;
-        } catch (Exception e) {
-            logger.error("执行命令时出错: {}", e.getMessage(), e);
-            return "命令执行失败: " + e.getMessage();
+        EasyBotCommandSender sender = new EasyBotCommandSender();
+        if(enablePapi) {
+            command = papiQuery(playerName, command);
         }
+        CompletableFuture<Boolean> task = server.getCommandManager().executeAsync(sender, command);
+        Boolean isSuccess = task.join();
+        String feedbacks = String.join("\n", sender.getFeedbacks());
+        if (!isSuccess) {
+            throw new RuntimeException(StringUtils.ifEmpty(feedbacks, "命令执行失败: 未返回错误"));
+        }
+        return feedbacks;
     }
 
     @Override

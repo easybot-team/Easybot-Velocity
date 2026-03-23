@@ -6,11 +6,17 @@ import net.kyori.adventure.chat.ChatType;
 import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.jetbrains.annotations.NotNull;
+import org.lby123165.easyBotVelocity.EasyBotVelocity;
+import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class EasyBotCommandSender implements CommandSource {
     private final List<String> feedbacks = new ArrayList<>();
@@ -31,8 +37,20 @@ public class EasyBotCommandSender implements CommandSource {
 
     @Override
     public void sendMessage(@NotNull Component message) {
-        var legacyMessage = LegacyComponentSerializer.legacySection().serialize(message);
-        feedbacks.add(legacyMessage);
+        if(message instanceof TranslatableComponent translatable) {
+            if(GlobalTranslator.translator().canTranslate(translatable.key(), Locale.CHINA)) {
+                Component translated = GlobalTranslator.renderer().render(translatable, Locale.CHINA);
+                feedbacks.add(LegacyTextUtils.toString(translated));
+            }else{
+                String fallback = translatable.fallback();
+                if(fallback == null) {
+                    fallback = translatable.key();
+                }
+                feedbacks.add(fallback);
+            }
+        }else {
+            feedbacks.add(LegacyTextUtils.toString(message));
+        }
     }
 
     @Override
