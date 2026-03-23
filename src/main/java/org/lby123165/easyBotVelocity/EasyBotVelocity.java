@@ -25,12 +25,21 @@ public class EasyBotVelocity {
     private final Logger logger;
     private final Path dataDirectory;
     private BridgeClient bridgeClient;
+    
+    private static EasyBotVelocity instance;
 
+    public static EasyBotVelocity getInstance() {
+        return instance;
+    }
+    public ProxyServer getServer() {
+        return server;
+    }
     @Inject
     public EasyBotVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
+        instance = this;
     }
 
     @Subscribe

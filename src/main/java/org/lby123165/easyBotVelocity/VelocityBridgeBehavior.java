@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VelocityBridgeBehavior implements BridgeBehavior {
     private final ProxyServer server;
@@ -21,21 +22,22 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
         this.server = server;
         this.logger = logger;
     }
+
     @Override
     public String runCommand(String playerName, String command, boolean enablePapi) {
         try {
-            logger.info("收到命令执行请求: " + command);
+            logger.info("收到命令执行请求: {}", command);
             server.getCommandManager().executeAsync(server.getConsoleCommandSource(), command);
             return "命令已通过控制台执行: " + command;
         } catch (Exception e) {
-            logger.error("执行命令时出错: " + e.getMessage(), e);
+            logger.error("执行命令时出错: {}", e.getMessage(), e);
             return "命令执行失败: " + e.getMessage();
         }
     }
 
     @Override
     public String papiQuery(String playerName, String query) {
-        return query;
+        return query.replace("%player_name%", playerName);
     }
 
     @Override
@@ -73,30 +75,30 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
 
     @Override
     public void BindSuccessBroadcast(String playerName, String accountId, String accountName) {
-        // [修复] §a -> &a
-        String msg = String.format("&a[EasyBot] 玩家 %s 成功绑定账号 %s!", playerName, accountName);
-        server.sendMessage(serializer.deserialize(msg));
+        //String msg = String.format("&a[EasyBot] 玩家 %s 成功绑定账号 %s!", playerName, accountName);
+        //server.sendMessage(serializer.deserialize(msg));
+
+        // do nothing
     }
 
     @Override
     public void KickPlayer(String playerName, String kickMessage) {
         server.getPlayer(playerName).ifPresent(player -> {
-            // [修改] 完全忽略后端传来的 kickMessage，直接写死
-            // 使用 & 格式，确保兼容性
-            String reason = "&c您已在社交平台解绑账号，请重新验证。";
-
+            var reason = kickMessage;
+            if (Objects.equals(kickMessage, "")) // 旧版本eb bug, 需要兼容
+                reason = "&c您已在社交平台解绑账号，请重新验证。";
             player.disconnect(serializer.deserialize(reason));
         });
     }
 
     @Override
     public boolean moduleIsInstalled(String moduleName) {
-        return false;
+        return EasyBotVelocity.getInstance().getServer().getPluginManager().isLoaded(moduleName);
     }
 
     @Override
     public boolean moduleIsEnabled(String moduleName) {
-        return false;
+        return moduleIsInstalled(moduleName);// Velocity 貌似没有模块启用状态的概念??
     }
 
     @Override
@@ -112,17 +114,6 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
         List<PlayerInfo> list = new ArrayList<>();
         for (Player p : server.getAllPlayers()) {
             PlayerInfo info = new PlayerInfo();
-
-            // 获取玩家所在的子服务器名称
-            String serverName = p.getCurrentServer()
-                    .map(server -> server.getServerInfo().getName())
-                    .orElse("Unknown"); // 正在连接中可能没服务器
-
-            // [修改] 将服务器名附加在名字后面，或者只上传纯名字
-            // 如果 EasyBot 后台支持解析 "Name (Server)" 这种格式最好
-            // 如果不支持，可能需要修改 bridge 协议增加字段
-            // 这里暂时仅上报纯名字，因为乱改名字可能会影响绑定验证等功能
-
             info.setPlayerName(p.getUsername());
             info.setPlayerUuid(p.getUniqueId().toString());
             if (p.getRemoteAddress() != null) {
