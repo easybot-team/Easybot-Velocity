@@ -13,6 +13,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
 import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
+import org.lby123165.easyBotVelocity.utils.LibreLoginUtils;
 import org.lby123165.easyBotVelocity.utils.StringUtils;
 import org.lby123165.easyBotVelocity.utils.SyncSegmentConverter;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class VelocityBridgeBehavior implements BridgeBehavior {
     private final ProxyServer server;
 
-    public VelocityBridgeBehavior(ProxyServer server, Logger logger) {
+    public VelocityBridgeBehavior(ProxyServer server) {
         this.server = server;
     }
 
@@ -102,10 +103,12 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
 
     @Override
     public boolean isAuthenticated(String playerName) {
-        if (server.getConfiguration().isOnlineMode()) {
-            return true;
+        Optional<Player> player = server.getPlayer(playerName);
+        if (player.isEmpty()) return true; // 这里返回true表示不需要进行登录
+        if (LibreLoginUtils.hasLiberLogin()) {
+            return LibreLoginUtils.isAuthenticated(player.get());
         }
-        return server.getPlayer(playerName).isPresent();
+        return true;
     }
 
     @Override

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'org.lby123165'
-version = '1.2.1-SNAPSHOT'
+version = '1.3.0'
 
 repositories {
     mavenCentral()
@@ -35,6 +35,8 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'org.projectlombok', module: 'lombok'
     }
+    
+    compileOnly(fileTree('libs'))
 
     implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 }
@@ -61,7 +63,7 @@ tasks {
 
 def targetJavaVersion = 17
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    toolchain.languageVersion = JavaLanguageVersion.of(22)
 }
 
 tasks.withType(JavaCompile).configureEach {

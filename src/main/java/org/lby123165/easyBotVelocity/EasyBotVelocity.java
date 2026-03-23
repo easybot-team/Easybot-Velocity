@@ -6,6 +6,7 @@ import com.springwater.easybot.bridge.ClientProfile;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -20,30 +21,39 @@ import java.nio.file.Path;
         id = "easybot-velocity",
         name = "EasyBot-Velocity",
         version = "0.1",
-        authors = {"lby123165"}
+        authors = {"lby123165", "MiuxuE"},
+        dependencies = {
+                @Dependency(id = "librelogin", optional = true)
+        }
 )
+
 public class EasyBotVelocity {
 
     private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
     private BridgeClient bridgeClient;
-    
+
     private static EasyBotVelocity instance;
 
     public static EasyBotVelocity getInstance() {
         return instance;
     }
+
     private final Configuration config;
+
     public Configuration getConfig() {
         return config;
     }
+
     public ProxyServer getServer() {
         return server;
     }
+
     public Logger getLogger() {
         return logger;
     }
+
     @Inject
     public EasyBotVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
@@ -69,7 +79,7 @@ public class EasyBotVelocity {
         logger.info("连接目标: " + config.ws);
 
         // 3. 初始化 Client
-        VelocityBridgeBehavior behavior = new VelocityBridgeBehavior(server, logger);
+        VelocityBridgeBehavior behavior = new VelocityBridgeBehavior(server);
         bridgeClient = new BridgeClient(config.ws, behavior);
         bridgeClient.setToken(config.token);
 
