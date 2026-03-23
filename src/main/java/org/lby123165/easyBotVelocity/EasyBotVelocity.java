@@ -37,6 +37,9 @@ public class EasyBotVelocity {
     public ProxyServer getServer() {
         return server;
     }
+    public Logger getLogger() {
+        return logger;
+    }
     @Inject
     public EasyBotVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
@@ -69,7 +72,7 @@ public class EasyBotVelocity {
         bridgeClient.setToken(config.token);
 
         // 4. 注册监听器 (将 config 传进去，用于判断 skipOptions)
-        server.getEventManager().register(this, new VelocityEventListener(server, bridgeClient, config));
+        server.getEventManager().register(this, new VelocityEventListener(bridgeClient, config));
         EasyBotCommand cmd = new EasyBotCommand(bridgeClient, config, dataDirectory);
 
         server.getCommandManager().register(

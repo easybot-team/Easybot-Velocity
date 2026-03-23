@@ -7,25 +7,16 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.ProxyServer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.lby123165.easyBotVelocity.EasyBotVelocity;
 import org.lby123165.easyBotVelocity.config.Configuration;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
+import org.lby123165.easyBotVelocity.utils.PlayerInfoBuilder;
 
 public class VelocityEventListener {
-    private final ProxyServer server;
     private final BridgeClient client;
     private final Configuration config;
-    // 保持使用 '&' 格式
-    private final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacyAmpersand();
 
-    private final Set<String> kickList = Collections.synchronizedSet(new HashSet<>());
-
-    public VelocityEventListener(ProxyServer server, BridgeClient client, Configuration config) {
-        this.server = server;
+    public VelocityEventListener(BridgeClient client, Configuration config) {
         this.client = client;
         this.config = config;
     }
@@ -33,84 +24,30 @@ public class VelocityEventListener {
     @Subscribe
     public void onPostLogin(PostLoginEvent event) {
         if (config.skipOptions.skipJoin) return;
-
-        new Thread(() -> {
-            try {
-                Player player = event.getPlayer();
-                String name = player.getUsername();
-                String uuid = player.getUniqueId().toString();
-                String ip = "127.0.0.1";
-                if (player.getRemoteAddress() != null) {
-                    ip = player.getRemoteAddress().getAddress().getHostAddress();
-                }
-
-                client.reportPlayer(name, uuid, ip);
-
-                var loginResult = client.login(name, uuid);
-
-                if (loginResult != null && Boolean.TRUE.equals(loginResult.getKick())) {
-                    String rawKickReason = loginResult.getKickMessage();
-                    if (rawKickReason == null) rawKickReason = "&c验证失败";
-
-                    // [关键修复] 将后端发来的 '§' 替换为 '&'，以适配我们的 serializer
-                    String kickReason = rawKickReason.replace('§', '&');
-
-                    kickList.add(name);
-
-                    // [关键修复] 这里必须用 '&c' 而不是 '§c'
-                    player.sendMessage(serializer.deserialize("&c[EasyBot] 验证未通过: " + kickReason));
-                    player.sendMessage(serializer.deserialize("&c[EasyBot] 您将在 3 秒后被移出服务器..."));
-
-                    try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
-
-                    // [关键修复] 同样替换 '§' 为 '&'
-                    player.disconnect(serializer.deserialize("&c" + kickReason));
-
-                    return;
-                }
-
-                PlayerInfoWithRaw info = new PlayerInfoWithRaw();
-                info.setName(name);
-                info.setUuid(uuid);
-                info.setNameRaw(name);
-                info.setIp(ip);
-
-                client.syncEnterExit(info, true);
-
-                try {
-                    client.serverState(String.valueOf(server.getPlayerCount()));
-                } catch (Exception ignored) {
-                }
-
-            } catch (Exception e) {
-                if (!config.ignoreError) e.printStackTrace();
+        Player player = event.getPlayer();
+        PlayerInfoWithRaw playerInfo = PlayerInfoBuilder.build(player);
+        try {
+            client.reportPlayer(playerInfo.getName(), playerInfo.getUuid(), playerInfo.getIp());
+            var loginResult = client.login(playerInfo.getName(), playerInfo.getUuid());
+            if (loginResult.getKick()) {
+                player.disconnect(LegacyTextUtils.toComponent(loginResult.getKickMessage()));
+                return;
             }
-        }).start();
+            client.syncEnterExit(playerInfo, true);
+        } catch (Exception e) {
+            EasyBotVelocity.getInstance().getLogger().error("[EasyBot] 处理玩家登陆失败", e);
+            if (!config.ignoreError) {
+                player.disconnect(LegacyTextUtils.toComponent("§c[VC] 服务器内部异常,请稍后再试"));
+            }
+        }
     }
 
-    // onDisconnect 和 onChat 保持不变...
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         if (config.skipOptions.skipQuit) return;
         Player player = event.getPlayer();
-        String name = player.getUsername();
-
-        if (kickList.contains(name)) {
-            kickList.remove(name);
-            return;
-        }
-
-        PlayerInfoWithRaw info = new PlayerInfoWithRaw();
-        info.setName(name);
-        info.setUuid(player.getUniqueId().toString());
-        info.setNameRaw(name);
-
-        client.syncEnterExit(info, false);
-
-        try {
-            client.serverState(String.valueOf(server.getPlayerCount()));
-        } catch (Exception ignored) {
-        }
+        PlayerInfoWithRaw playerInfo = PlayerInfoBuilder.build(player);
+        client.syncEnterExit(playerInfo, false);
     }
 
     @Subscribe
