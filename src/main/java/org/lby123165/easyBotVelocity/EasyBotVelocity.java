@@ -69,7 +69,7 @@ public class EasyBotVelocity {
         logger.info("连接目标: " + config.ws);
 
         // 3. 初始化 Client
-        VelocityBridgeBehavior behavior = new VelocityBridgeBehavior(server);
+        VelocityBridgeBehavior behavior = new VelocityBridgeBehavior(server, logger);
         bridgeClient = new BridgeClient(config.ws, behavior);
         bridgeClient.setToken(config.token);
 
