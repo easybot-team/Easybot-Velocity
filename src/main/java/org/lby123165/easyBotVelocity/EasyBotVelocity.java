@@ -34,6 +34,10 @@ public class EasyBotVelocity {
     public static EasyBotVelocity getInstance() {
         return instance;
     }
+    private final Configuration config;
+    public Configuration getConfig() {
+        return config;
+    }
     public ProxyServer getServer() {
         return server;
     }
@@ -45,15 +49,13 @@ public class EasyBotVelocity {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
+        this.config = Configuration.load(dataDirectory);
         instance = this;
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("EasyBot-Velocity 正在加载...");
-
-        // 1. 加载 Config.json
-        Configuration config = Configuration.load(dataDirectory);
 
         ClientProfile.setPluginVersion(BuildConstants.VERSION);
         ClientProfile.setServerDescription("Velocity");

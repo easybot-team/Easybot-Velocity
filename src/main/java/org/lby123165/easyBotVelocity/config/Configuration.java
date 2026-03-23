@@ -20,6 +20,10 @@ public class Configuration {
     public Command command = new Command();
     public SkipOptions skipOptions = new SkipOptions();
     public Geyser geyser = new Geyser();
+    public Sync sync = new Sync();
+    public static class Sync {
+        public boolean chatImageSupport = true;
+    }
 
     // 内部类定义
     public static class Message {
