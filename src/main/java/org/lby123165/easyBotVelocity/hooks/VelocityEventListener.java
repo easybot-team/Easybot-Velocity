@@ -1,4 +1,4 @@
-package org.lby123165.easyBotVelocity;
+package org.lby123165.easyBotVelocity.hooks;
 
 import com.springwater.easybot.bridge.BridgeClient;
 import com.springwater.easybot.bridge.packet.PlayerInfoWithRaw;
@@ -9,6 +9,7 @@ import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.lby123165.easyBotVelocity.config.Configuration;
 
 import java.util.Collections;
 import java.util.HashSet;

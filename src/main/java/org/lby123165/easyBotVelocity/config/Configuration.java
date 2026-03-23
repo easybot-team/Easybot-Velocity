@@ -1,4 +1,4 @@
-package org.lby123165.easyBotVelocity;
+package org.lby123165.easyBotVelocity.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

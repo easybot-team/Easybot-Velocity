@@ -1,4 +1,4 @@
-package org.lby123165.easyBotVelocity;
+package org.lby123165.easyBotVelocity.commands;
 
 import com.springwater.easybot.bridge.BridgeClient;
 import com.springwater.easybot.bridge.packet.GetBindInfoResultPacket;
@@ -11,6 +11,7 @@ import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.lby123165.easyBotVelocity.config.Configuration;
 
 import java.nio.file.Path;
 import java.util.List;

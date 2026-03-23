@@ -9,6 +9,9 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import org.lby123165.easyBotVelocity.commands.EasyBotCommand;
+import org.lby123165.easyBotVelocity.config.Configuration;
+import org.lby123165.easyBotVelocity.hooks.VelocityEventListener;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
