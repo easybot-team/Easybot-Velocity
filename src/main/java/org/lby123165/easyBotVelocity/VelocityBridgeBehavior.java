@@ -2,32 +2,25 @@ package org.lby123165.easyBotVelocity;
 
 import com.springwater.easybot.bridge.BridgeBehavior;
 import com.springwater.easybot.bridge.message.Segment;
-import com.springwater.easybot.bridge.message.TextSegment;
 import com.springwater.easybot.bridge.model.PlayerInfo;
 import com.springwater.easybot.bridge.model.ServerInfo;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
 import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
 import org.lby123165.easyBotVelocity.utils.StringUtils;
 import org.lby123165.easyBotVelocity.utils.SyncSegmentConverter;
-import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class VelocityBridgeBehavior implements BridgeBehavior {
     private final ProxyServer server;
-    private final Logger logger;
-    private final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacyAmpersand();
 
-    public VelocityBridgeBehavior(ProxyServer server, Logger logger) {
+    public VelocityBridgeBehavior(ProxyServer server) {
         this.server = server;
-        this.logger = logger;
     }
 
     @Override

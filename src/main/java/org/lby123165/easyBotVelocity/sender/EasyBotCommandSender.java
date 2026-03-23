@@ -7,16 +7,13 @@ import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 import org.jetbrains.annotations.NotNull;
-import org.lby123165.easyBotVelocity.EasyBotVelocity;
 import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class EasyBotCommandSender implements CommandSource {
     private final List<String> feedbacks = new ArrayList<>();
