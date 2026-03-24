@@ -12,10 +12,7 @@ import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
-import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
-import org.lby123165.easyBotVelocity.utils.LibreLoginUtils;
-import org.lby123165.easyBotVelocity.utils.StringUtils;
-import org.lby123165.easyBotVelocity.utils.SyncSegmentConverter;
+import org.lby123165.easyBotVelocity.utils.*;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -103,6 +100,10 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
 
     @Override
     public boolean isAuthenticated(String playerName) {
+        if (LimboAuthUtils.hasLimboAuth()) {
+            return LimboAuthUtils.isAuthenticated(playerName);
+        }
+
         Optional<Player> player = server.getPlayer(playerName);
         if (player.isEmpty()) return true; // 这里返回true表示不需要进行登录
         if (LibreLoginUtils.hasLiberLogin()) {

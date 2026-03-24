@@ -9,9 +9,11 @@ import com.springwater.easybot.bridge.model.PluginInfo;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
+import net.elytrium.limboauth.handler.AuthSessionHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.lby123165.easyBotVelocity.config.Configuration;
+import org.lby123165.easyBotVelocity.utils.LimboAuthUtils;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -63,10 +65,34 @@ public class EasyBotCommand implements SimpleCommand {
             case "plugins":
                 handlePlugins(source);
                 break;
+            case "limboforcelogin":
+                handleLimboAuthForceLogin(source, args);
+                break;
             default:
                 source.sendMessage(Component.text("未知指令，请输入 /ez help 查看帮助", NamedTextColor.RED));
                 break;
         }
+    }
+
+    private void handleLimboAuthForceLogin(CommandSource source, String[] args) {
+        if (!source.hasPermission("easybot.admin")) return;
+        if (args.length != 2) {
+            source.sendMessage(Component.text("用法: /ez limboforcelogin <玩家名>", NamedTextColor.RED));
+            return;
+        }
+        if (!LimboAuthUtils.hasLimboAuth()) {
+            source.sendMessage(Component.text("未安装 LimboAuth 插件!", NamedTextColor.RED));
+            return;
+        }
+
+        String playerName = args[1];
+        AuthSessionHandler handler = LimboAuthUtils.getLimboAuth().getAuthenticatingPlayer(playerName);
+        if (handler == null) {
+            source.sendMessage(Component.text("玩家不存在或已登录!", NamedTextColor.RED));
+            return;
+        }
+        handler.finishLogin();
+        source.sendMessage(Component.text("已强制登录玩家 " + playerName, NamedTextColor.GREEN));
     }
 
     private void handleReload(CommandSource source) {
@@ -261,6 +287,9 @@ public class EasyBotCommand implements SimpleCommand {
             source.sendMessage(Component.text("/ez newversion - 查询 EasyBot 最新版本", NamedTextColor.WHITE));
             source.sendMessage(Component.text("/ez bindinfo <player> - 查询玩家绑定信息", NamedTextColor.WHITE));
             source.sendMessage(Component.text("/ez plugins - 查询 EasyBot 已安装插件", NamedTextColor.WHITE));
+            if (LimboAuthUtils.hasLimboAuth()) {
+                source.sendMessage(Component.text("/ez limboforcelogin <username> - 强制登录玩家", NamedTextColor.WHITE));
+            }
         }
     }
 
@@ -270,7 +299,7 @@ public class EasyBotCommand implements SimpleCommand {
         String[] args = invocation.arguments();
         if (args.length <= 1) {
             if (invocation.source().hasPermission("easybot.admin")) {
-                return List.of("bind", "social", "reload", "status", "newversion", "bindinfo", "plugins", "help");
+                return List.of("bind", "social", "reload", "status", "newversion", "bindinfo", "plugins", "limboforcelogin", "help");
             }
             return List.of("bind", "social", "help");
         }
