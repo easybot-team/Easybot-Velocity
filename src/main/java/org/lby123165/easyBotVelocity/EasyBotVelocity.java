@@ -23,7 +23,8 @@ import java.nio.file.Path;
         version = "0.1",
         authors = {"lby123165", "MiuxuE"},
         dependencies = {
-                @Dependency(id = "librelogin", optional = true)
+                @Dependency(id = "librelogin", optional = true),
+                @Dependency(id = "limboauth", optional = true)
         }
 )
 
