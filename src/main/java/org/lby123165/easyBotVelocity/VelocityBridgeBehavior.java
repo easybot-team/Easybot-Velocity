@@ -36,7 +36,7 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
         }
         CompletableFuture<Boolean> task = server.getCommandManager().executeAsync(sender, command);
         Boolean isSuccess = task.join();
-        String feedbacks = String.join("\n", sender.getFeedbacks());
+        String feedbacks = String.join("\n", sender.awaitForMessages().join());
         if (!isSuccess) {
             throw new RuntimeException(StringUtils.ifEmpty(feedbacks, "命令执行失败: 未返回错误"));
         }
