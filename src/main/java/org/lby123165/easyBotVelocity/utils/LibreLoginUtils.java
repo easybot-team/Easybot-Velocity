@@ -18,10 +18,11 @@ public class LibreLoginUtils {
     public static boolean isAuthenticated(Player proxyPlayer) {
         if (!hasLiberLogin()) {
             return true;
+        } else {
+            if (libreLoginPlugin == null) {
+                libreLoginPlugin = ((LibreLoginProvider<Player, RegisteredServer>) EasyBotVelocity.getInstance().getServer().getPluginManager().getPlugin("librelogin").orElseThrow().getInstance().orElseThrow()).getLibreLogin();
+            }
+            return libreLoginPlugin.getAuthorizationProvider().isAuthorized(proxyPlayer);
         }
-        if (libreLoginPlugin == null) {
-            libreLoginPlugin = ((LibreLoginProvider<Player, RegisteredServer>) EasyBotVelocity.getInstance().getServer().getPluginManager().getPlugin("librelogin").orElseThrow().getInstance().orElseThrow()).getLibreLogin();
-        }
-        return libreLoginPlugin.getAuthorizationProvider().isAuthorized(proxyPlayer);
     }
 }
