@@ -2,18 +2,14 @@ package org.lby123165.easyBotVelocity;
 
 import com.springwater.easybot.bridge.BridgeBehavior;
 import com.springwater.easybot.bridge.message.Segment;
-import com.springwater.easybot.bridge.message.TextSegment;
 import com.springwater.easybot.bridge.model.PlayerInfo;
 import com.springwater.easybot.bridge.model.ServerInfo;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
 import org.lby123165.easyBotVelocity.utils.*;
-import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -108,6 +104,9 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
         if (player.isEmpty()) return true; // 这里返回true表示不需要进行登录
         if (LibreLoginUtils.hasLiberLogin()) {
             return LibreLoginUtils.isAuthenticated(player.get());
+        }
+        if (AuthMeVcUtils.hasAuthMeVelocity()) {
+            return AuthMeVcUtils.isAuthenticated(player.get());
         }
         return true;
     }
