@@ -4,17 +4,13 @@ import com.springwater.easybot.bridge.BridgeClient;
 import com.springwater.easybot.bridge.packet.PlayerInfoWithRaw;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
-import com.velocitypowered.api.event.player.GameProfileRequestEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import org.lby123165.easyBotVelocity.EasyBotVelocity;
 import org.lby123165.easyBotVelocity.config.Configuration;
 import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
 import org.lby123165.easyBotVelocity.utils.PlayerInfoBuilder;
-
-import java.util.HashSet;
 
 public class VelocityEventListener {
     private final BridgeClient client;
@@ -24,7 +20,7 @@ public class VelocityEventListener {
         this.client = client;
         this.config = config;
     }
-    
+
     @Subscribe(priority = 100)
     public void onPreLogin(PreLoginEvent event){
         if (config.skipOptions.skipJoin) return;
@@ -36,11 +32,8 @@ public class VelocityEventListener {
             }
             return;
         }
-        
-        PlayerInfoWithRaw playerInfo = new PlayerInfoWithRaw();
-        playerInfo.setName(event.getUsername());
-        playerInfo.setNameRaw(event.getUsername());
-        playerInfo.setUuid(event.getUniqueId().toString());
+
+        PlayerInfoWithRaw playerInfo = PlayerInfoBuilder.build(event.getUsername(), event.getUniqueId());
         String ip = "127.0.0.1";
         if(event.getConnection().getRemoteAddress() != null){
             ip = event.getConnection().getRemoteAddress().getAddress().getHostAddress();

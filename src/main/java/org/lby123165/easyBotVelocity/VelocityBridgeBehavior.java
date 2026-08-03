@@ -1,6 +1,7 @@
 package org.lby123165.easyBotVelocity;
 
 import com.springwater.easybot.bridge.BridgeBehavior;
+import com.springwater.easybot.bridge.ClientProfile;
 import com.springwater.easybot.bridge.message.Segment;
 import com.springwater.easybot.bridge.model.PlayerInfo;
 import com.springwater.easybot.bridge.model.ServerInfo;
@@ -11,7 +12,10 @@ import net.kyori.adventure.text.TextComponent;
 import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
 import org.lby123165.easyBotVelocity.utils.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class VelocityBridgeBehavior implements BridgeBehavior {
@@ -49,6 +53,7 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
         info.setPluginVersion(BuildConstants.VERSION);
         info.setOnlineMode(server.getConfiguration().isOnlineMode());
         info.setCommandSupported(true);
+        info.setHasGeyser(ClientProfile.isHasGeyser());
         return info;
     }
 

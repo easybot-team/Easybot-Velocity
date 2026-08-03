@@ -13,6 +13,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import org.lby123165.easyBotVelocity.commands.EasyBotCommand;
 import org.lby123165.easyBotVelocity.config.Configuration;
 import org.lby123165.easyBotVelocity.hooks.VelocityEventListener;
+import org.lby123165.easyBotVelocity.utils.GeyserUtils;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -75,8 +76,7 @@ public class EasyBotVelocity {
         ClientProfile.setCommandSupported(true);
         ClientProfile.setPapiSupported(false);
         ClientProfile.setOnlineMode(server.getConfiguration().isOnlineMode());
-        ClientProfile.setHasGeyser(server.getPluginManager().getPlugin("geyser").isPresent());
-        ClientProfile.setHasFloodgate(server.getPluginManager().getPlugin("floodgate").isPresent());
+        GeyserUtils.handleGeyserCompatibility(this);
 
         logger.info("连接目标: " + config.ws);
 
