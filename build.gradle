@@ -1,10 +1,10 @@
 plugins {
     id 'java'
     id 'eclipse'
-    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.8'
-    id("xyz.jpenilla.run-velocity") version "2.3.1"
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.4.1'
+    id("xyz.jpenilla.run-velocity") version "3.0.2"
 
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 group = 'org.lby123165'
@@ -17,12 +17,12 @@ repositories {
         url = "https://repo.papermc.io/repository/maven-public/"
     }
     maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/easybot-team/easybot-bridge")
-        credentials {
-            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user")
-            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key")
-        }
+        name = "Jitpack"
+        url = "https://www.jitpack.io"
+    }
+    maven {
+        name = "GeyserMC"
+        url = "https://repo.opencollab.dev/main/"
     }
 }
 
@@ -30,12 +30,13 @@ dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
-    implementation('com.springwater.easybot:easybot-bridge:1.7.1') {
+    implementation('com.github.easybot-team:easybot-bridge:1.7.1') {
         exclude group: 'com.google.code.gson', module: 'gson'
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'org.projectlombok', module: 'lombok'
     }
-    
+
+    compileOnly("io.github.4drian3d:authmevelocity-api-velocity:4.3.0")
     compileOnly(fileTree('libs'))
 
     implementation 'org.java-websocket:Java-WebSocket:1.5.3'
@@ -61,9 +62,9 @@ tasks {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(22)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 tasks.withType(JavaCompile).configureEach {

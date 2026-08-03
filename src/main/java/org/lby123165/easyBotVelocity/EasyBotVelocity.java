@@ -24,7 +24,8 @@ import java.nio.file.Path;
         authors = {"lby123165", "MiuxuE"},
         dependencies = {
                 @Dependency(id = "librelogin", optional = true),
-                @Dependency(id = "limboauth", optional = true)
+                @Dependency(id = "limboauth", optional = true),
+                @Dependency(id = "authmevelocity", optional = true)
         }
 )
 
