@@ -73,10 +73,14 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
 
     @Override
     public void BindSuccessBroadcast(String playerName, String accountId, String accountName) {
-        //String msg = String.format("&a[EasyBot] 玩家 %s 成功绑定账号 %s!", playerName, accountName);
-        //server.sendMessage(serializer.deserialize(msg));
-
-        // do nothing
+        server.getPlayer(playerName).ifPresent(player -> {
+            String msg = EasyBotVelocity.getInstance().getConfig().message.bindSuccess
+                    .replace("&", "§")
+                    .replace("$player", playerName)
+                    .replace("$account", accountId)
+                    .replace("$name", accountName);
+            player.sendMessage(LegacyTextUtils.toComponent(msg));
+        });
     }
 
     @Override
