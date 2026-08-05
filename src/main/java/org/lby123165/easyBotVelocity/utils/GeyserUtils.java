@@ -122,6 +122,12 @@ public class GeyserUtils {
 
     public static boolean isBedrock(Player player) {
         if (ClientProfile.isHasGeyser()) {
+            if (ClientProfile.isHasFloodgate()) {
+                FloodgatePlayer conn = FloodgateApi.getInstance().getPlayer(player.getUniqueId());
+                if (conn != null) {
+                    return true;
+                }
+            }
             return Geyser.api().isBedrockPlayer(player.getUniqueId());
         }
         return false;
