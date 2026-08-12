@@ -1,17 +1,25 @@
 package org.lby123165.easyBotVelocity;
 
+import com.google.gson.JsonObject;
 import com.springwater.easybot.bridge.BridgeBehavior;
+import com.springwater.easybot.bridge.ClientProfile;
 import com.springwater.easybot.bridge.message.Segment;
 import com.springwater.easybot.bridge.model.PlayerInfo;
+import com.springwater.easybot.bridge.model.PlayerSkin;
 import com.springwater.easybot.bridge.model.ServerInfo;
+import com.springwater.easybot.bridge.packet.NbtDataTypeEnum;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.jetbrains.annotations.Nullable;
 import org.lby123165.easyBotVelocity.sender.EasyBotCommandSender;
 import org.lby123165.easyBotVelocity.utils.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class VelocityBridgeBehavior implements BridgeBehavior {
@@ -49,6 +57,7 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
         info.setPluginVersion(BuildConstants.VERSION);
         info.setOnlineMode(server.getConfiguration().isOnlineMode());
         info.setCommandSupported(true);
+        info.setHasGeyser(ClientProfile.isHasGeyser());
         return info;
     }
 
@@ -68,10 +77,14 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
 
     @Override
     public void BindSuccessBroadcast(String playerName, String accountId, String accountName) {
-        //String msg = String.format("&a[EasyBot] 玩家 %s 成功绑定账号 %s!", playerName, accountName);
-        //server.sendMessage(serializer.deserialize(msg));
-
-        // do nothing
+        server.getPlayer(playerName).ifPresent(player -> {
+            String msg = EasyBotVelocity.getInstance().getConfig().message.bindSuccess
+                    .replace("&", "§")
+                    .replace("$player", playerName)
+                    .replace("$account", accountId)
+                    .replace("$name", accountName);
+            player.sendMessage(LegacyTextUtils.toComponent(msg));
+        });
     }
 
     @Override
@@ -112,17 +125,30 @@ public class VelocityBridgeBehavior implements BridgeBehavior {
     }
 
     @Override
+    public @Nullable JsonObject ReadNbtData(String playerUuid, NbtDataTypeEnum dataType) {
+        return null;
+    }
+
+    @Override
     public List<PlayerInfo> getPlayerList() {
         List<PlayerInfo> list = new ArrayList<>();
         for (Player p : server.getAllPlayers()) {
             PlayerInfo info = new PlayerInfo();
-            info.setPlayerName(p.getUsername());
-            info.setPlayerUuid(p.getUniqueId().toString());
+            info.setPlayerName(GeyserUtils.getNameByPlayer(p));
+            info.setPlayerUuid(GeyserUtils.getUuid(p.getUniqueId()).toString());
             if (p.getRemoteAddress() != null) {
                 info.setIp(p.getRemoteAddress().getAddress().getHostAddress());
             }
+            info.setBedrock(GeyserUtils.isBedrock(p));
+            info.setSkinUrl(SkinUtils.getSkin(p));
             list.add(info);
         }
         return list;
+    }
+
+    @Override
+    public @Nullable PlayerSkin getPlayerSkin(String playerName) {
+        Optional<Player> p = server.getPlayer(playerName);
+        return p.map(SkinUtils::getSkinOrNull).orElse(null);
     }
 }

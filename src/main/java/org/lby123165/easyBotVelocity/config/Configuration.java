@@ -21,10 +21,10 @@ public class Configuration {
     public Geyser geyser = new Geyser();
     public Sync sync = new Sync();
     public static class Message {
-        public String bindStart = "[!] 绑定开始,请加群12345678输入: \"绑定 #code\" 进行绑定, 请在#time完成绑定!";
-        public String bindSuccess = "[!] 绑定 #account (#name) 成功!";
-        public String bindFail = "";
-        public String syncSuccess = "";
+        public String bindStart = "§f[§a!§f] 开始绑定,请在群 §e123456 §f输入 '绑定 #code' 进行绑定! \n§f[§c!§f] 请在§a #time §f前完成验证,到时将自动取消绑定!";
+        public String bindSuccess = "§f[§a!§f] 绑定§f §a#account §f(§a#name§f) 成功!";
+        public String bindFail = "§f[§c!§f] §c绑定失败 #why";
+        public String syncSuccess = "§f[§a!§f] §f发送成功!"; // 我不知道这个有什么用
     }
 
     public static class Command {
@@ -35,7 +35,6 @@ public class Configuration {
         public boolean skipJoin = false;
         public boolean skipQuit = false;
         public boolean skipChat = false;
-        public boolean skipDeath = false;
     }
 
     public static class Geyser {

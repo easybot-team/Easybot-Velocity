@@ -13,6 +13,7 @@ import net.elytrium.limboauth.handler.AuthSessionHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.lby123165.easyBotVelocity.config.Configuration;
+import org.lby123165.easyBotVelocity.utils.LegacyTextUtils;
 import org.lby123165.easyBotVelocity.utils.LimboAuthUtils;
 
 import java.nio.file.Path;
@@ -147,10 +148,13 @@ public class EasyBotCommand implements SimpleCommand {
                         .replace("#code", result.getCode())
                         .replace("#time", result.getTime());
 
-                player.sendMessage(Component.text(msg, NamedTextColor.GREEN));
+                player.sendMessage(LegacyTextUtils.toComponent(msg));
 
             } catch (Exception e) {
-                player.sendMessage(Component.text("绑定请求失败: " + e.getMessage(), NamedTextColor.RED));
+                String msg = config.message.bindFail
+                        .replace("#why", "服务器内部异常")
+                        .replace("&", "§");
+                player.sendMessage(LegacyTextUtils.toComponent(msg));
                 if (config.debug) e.printStackTrace();
             }
         });

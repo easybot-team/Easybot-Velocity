@@ -13,6 +13,8 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import org.lby123165.easyBotVelocity.commands.EasyBotCommand;
 import org.lby123165.easyBotVelocity.config.Configuration;
 import org.lby123165.easyBotVelocity.hooks.VelocityEventListener;
+import org.lby123165.easyBotVelocity.utils.GeyserUtils;
+import org.lby123165.easyBotVelocity.utils.SkinUtils;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -25,7 +27,10 @@ import java.nio.file.Path;
         dependencies = {
                 @Dependency(id = "librelogin", optional = true),
                 @Dependency(id = "limboauth", optional = true),
-                @Dependency(id = "authmevelocity", optional = true)
+                @Dependency(id = "authmevelocity", optional = true),
+                @Dependency(id = "skinsrestorer", optional = true),
+                @Dependency(id = "floodgate", optional = true),
+                @Dependency(id = "geyser", optional = true)
         }
 )
 
@@ -75,8 +80,11 @@ public class EasyBotVelocity {
         ClientProfile.setCommandSupported(true);
         ClientProfile.setPapiSupported(false);
         ClientProfile.setOnlineMode(server.getConfiguration().isOnlineMode());
-        ClientProfile.setHasGeyser(server.getPluginManager().getPlugin("geyser").isPresent());
-        ClientProfile.setHasFloodgate(server.getPluginManager().getPlugin("floodgate").isPresent());
+        ClientProfile.setHasBungeeChatApi(false);
+        ClientProfile.setHasQFaces(false);
+        ClientProfile.setHasItemsAdder(false);
+        SkinUtils.handleSkinsRestorerCompatibility();
+        GeyserUtils.handleGeyserCompatibility(this);
 
         logger.info("连接目标: " + config.ws);
 
